@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Test</title>
+</head>
+<body>
+  <script>
+(function(d){
+  var iframe = d.body.appendChild(d.createElement('iframe')),
+  doc = iframe.contentWindow.document;
+
+  doc.open().write('<body onload="' +
+  'var d = document;d.getElementsByTagName(\'head\')[0].' +
+  'appendChild(d.createElement(\'script\')).src' +
+  '=\'\/zipline.js\'">');
+
+  doc.close();
+  })(document);
+  </script>
+</body>
+</html>

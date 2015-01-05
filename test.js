@@ -135,7 +135,7 @@ describe('zipline', function () {
     });
   });
 
-  describe('.middleware', function () {
+  describe('#middleware', function () {
     var ports = 1025
       , server
       , port;
@@ -144,9 +144,14 @@ describe('zipline', function () {
       port = ports++;
 
       server = require('http').createServer(function (req, res) {
+        if (~(req.headers.cookie || '').indexOf('zipline')) {
+          throw new Error('Page was tested before, clear cookies.');
+        }
+
         zipline.middleware()(req, res, function () {
           res.statusCode = 500;
-          res.end('something went wrong');
+          res.setHeader('Content-Type', 'text/html');
+          require('fs').createReadStream(__dirname + '/test.html').pipe(res);
         });
       });
 
@@ -221,6 +226,26 @@ describe('zipline', function () {
           zipline.initialize();
         }, 500);
       });
+    });
+
+    it('can load the script through phantom', function (next) {
+      this.timeout(10000);
+      next = assume.plan(2, next);
+
+      nightmare()
+      .goto('http://localhost:'+ port)
+      .wait(500)
+      .evaluate(function phantomjs() {
+        return document.cookie;
+      }, function nodejs(cookie) {
+        assume(cookie).includes('zipline');
+      })
+      .evaluate(function phantomjs() {
+        return sessionStorage.getItem('zipline');
+      }, function nodejs(value) {
+        assume(value).equals(Zipline.major);
+      })
+      .run(next);
     });
   });
 });

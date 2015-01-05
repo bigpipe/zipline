@@ -73,6 +73,7 @@ Zipline.prototype.middleware = function middleware() {
     res.setHeader('Content-Encoding', 'gzip');
     res.setHeader('Content-Type', 'text/javascript');
     res.setHeader('Content-Length', zipline.buffer.length);
+
     res.end(zipline.buffer);
   };
 };
