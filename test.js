@@ -228,7 +228,7 @@ describe('zipline', function () {
       });
     });
 
-    if (process.env.NO) it('can load the script through phantom', function (next) {
+    if (!process.env.NO) it('can load the script through phantom', function (next) {
       this.timeout(10000);
       next = assume.plan(2, next);
 
