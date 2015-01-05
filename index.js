@@ -6,7 +6,7 @@ var destroy = require('demolish')
   , fs = require('fs');
 
 var obfheader = /^(Accept-EncodXng|X-cept-Encoding|X{15}|~{15}|-{15})$/i
-  , obfvalue = /^((gzip|deflate)\s*,?\s*)+|[X\~\-]{4,13}$/i;
+  , obfvalue = /^((gzip|deflate)s*,?s*(gzip|deflate)?|X{4,13}|~{4,13}|-{4,13})$/;
 
 /**
  * Zipline: An GZIP detection utility.
@@ -98,18 +98,13 @@ Zipline.prototype.destroy = destroy('name, buffer, pathname', {
  * @api public
  */
 Zipline.accepts = function accepts(req, name) {
+  name = name || 'zipline';
+
   var i, value
     , raw = req.rawHeaders || []
-    , headers = req.headers || req
-    , ua = (headers['user-agent'] || '')
-    , line = (name || 'zipline') +'='+ Zipline.major;
-
-  //
-  // Check for the bypass cookie which can be set.
-  //
-  if (headers.cookie && ~headers.cookie.indexOf(line)) {
-    return 'gzip';
-  }
+    , headers = req.headers || {}
+    , line = name +'='+ Zipline.major
+    , ua = (headers['user-agent'] || '');
 
   //
   // Detect broken gzip encoding on Internet Explorer 5 & 6.
@@ -123,8 +118,8 @@ Zipline.accepts = function accepts(req, name) {
   //
   // No obfuscation, assume that it's intact and that we can test against it.
   //
-  if ((value = obfvalue.exec(headers['accept-encoding'] || ''))) {
-    return value[1];
+  if (headers['accept-encoding']) {
+    return headers['accept-encoding'].split(',')[0];
   }
 
   //
@@ -134,12 +129,12 @@ Zipline.accepts = function accepts(req, name) {
   // @see developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping
   //
   if (!raw.length) for (i in headers) {
-    if (obfheader.test(i) && (value = obfvalue.exec(headers[i]))) {
-      return value[1];
+    if (obfheader.test(i) && obfvalue.test(headers[i])) {
+      return 'gzip';
     }
   } else for (i = 0; i < raw.length; i++) {
-    if (obfheader.test(raw[i]) && (value = obfvalue.exec(raw[i + 1]))) {
-      return value[1];
+    if (obfheader.test(raw[i]) && obfvalue.exec(raw[i + 1])) {
+      return 'gzip';
     }
 
     //
@@ -148,6 +143,16 @@ Zipline.accepts = function accepts(req, name) {
     // not the values.
     //
     i++;
+  }
+
+  //
+  // Check for the bypass cookie or query string which can be set to force gzip.
+  //
+  if (
+       headers.cookie && ~headers.cookie.indexOf(line)
+    || 'object' === typeof req.query && req.query[name] === Zipline.major
+  ) {
+    return 'gzip';
   }
 
   return undefined;
