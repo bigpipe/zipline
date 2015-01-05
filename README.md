@@ -8,28 +8,48 @@
 [david]: https://img.shields.io/david/bigpipe/zipline.svg?style=flat-square
 [cover]: http://img.shields.io/coveralls/bigpipe/zipline/master.svg?style=flat-square
 
-Zipline attempts to reliably discover what content encoding is supported for
-a given headers object. As [research from Yahoo has shown][ydn] you cannot trust
-the contents of the `Accept-Encoding` header and just "roll" with that. In
-zipline we:
+Zipline attempts to discover what content encoding is supported for a given HTTP
+request. As [research from Yahoo has shown][ydn] you cannot trust the contents
+of the `Accept-Encoding` header and just "roll" with that. In zipline we:
 
 1. Implements the detection algorithm as discussed in Yahoo's article.
 2. Detect broken gzip implementations in Internet Explorer 6.
-3. Provide a way to detect gzip support using cookies. As suggested at the
-   [velocity][velocity] conference.
+3. Provide a way to forcefully detect gzip as suggested at the
+   [velocity][velocity] conference. We store the result in cookie, localStorage
+   and sessionStorage.
 
 ## Installation
 
-This module released frequently in the npm registry and can be installed using:
+The module is released in the public npm registry and can be installed using
 
 ```
 npm install --save zipline
 ```
 
+The `--save` instructs npm to store the dependency in your `package.json` file.
+
 ## Usage
 
-This module exposes two different functions, the main `zipline` method and an
-`middleware` function. 
+In all examples we assume that you've already required an initialized your
+Zipline instance as following:
+
+```js
+'use strict';
+
+var Zipline = require('zipline')
+  , zipline = new Zipline();
+```
+
+The constructor accepts one optional argument which is an option object that can
+contain the following keys:
+
+- **`pathname`** The pathname on which our middleware should trigger and serve
+  our gzipped payload for forcefully detecting gzip.
+- **`name`** Name of the cookie, property and localStorage/sessionStorage on
+  which we save our gzip information.
+
+Now that we know the options we can look at the various of API methods that we
+expose.
 
 ### Zipline
 
