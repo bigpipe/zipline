@@ -30,6 +30,7 @@
   "bugs": {
     "url": "https://github.com/bigpipe/zipline/issues"
   },
+  "homepage": "https://github.com/bigpipe/zipline",
   "devDependencies": {
     "assume": "0.0.x",
     "istanbul": "0.3.x",
