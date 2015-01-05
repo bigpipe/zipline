@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha test.js",
-    "prepublish": "node build.js",
     "watch": "mocha --watch test.js",
     "coverage": "istanbul cover ./node_modules/.bin/_mocha -- test.js",
     "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- test.js"
@@ -36,6 +35,11 @@
     "assume": "0.0.x",
     "istanbul": "0.3.x",
     "mocha": "2.1.x",
+    "nightmare": "1.6.x",
     "pre-commit": "0.0.x"
+  },
+  "dependencies": {
+    "demolish": "1.0.x",
+    "eventemitter3": "0.1.x"
   }
 }
