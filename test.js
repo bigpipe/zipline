@@ -2,6 +2,7 @@ describe('zipline', function () {
   'use strict';
 
   var nightmare = require('nightmare')
+    , request = require('request')
     , assume = require('assume')
     , Zipline = require('./')
     , zipline;
@@ -16,6 +17,10 @@ describe('zipline', function () {
 
   it('is exposed as function', function () {
     assume(Zipline).to.be.a('function');
+  });
+
+  it('can be constructed without new keyword', function () {
+    assume(Zipline()).is.instanceOf(Zipline);
   });
 
   it('exposes the parser as function', function () {
@@ -47,6 +52,24 @@ describe('zipline', function () {
       headers: {}
     };
 
+    var headers = [
+      'Accept-EncodXng',
+      'X-cept-Encoding',
+      'XXXXXXXXXXXXXXX',
+      '~~~~~~~~~~~~~~~',
+      '---------------'
+    ];
+
+    var values = [
+      'gzip',
+      'deflate',
+      'gzip,deflate',
+      'deflate,gzip',
+      'XXXXXXXXXXXXX',
+      '~~~~~~~~~~~~~',
+      '-------------'
+    ];
+
     it('detects gzip support', function () {
       assume(Zipline.accepts(accept)).equals('gzip');
       assume(Zipline.accepts(decline)).is.a('undefined');
@@ -65,24 +88,6 @@ describe('zipline', function () {
     });
 
     it('forces gzip on obfuscated encoding headers', function () {
-      var headers = [
-        'Accept-EncodXng',
-        'X-cept-Encoding',
-        'XXXXXXXXXXXXXXX',
-        '~~~~~~~~~~~~~~~',
-        '---------------'
-      ];
-
-      var values = [
-        'gzip',
-        'deflate',
-        'gzip,deflate',
-        'deflate,gzip',
-        'XXXXXXXXXXXXX',
-        '~~~~~~~~~~~~~',
-        '-------------'
-      ];
-
       headers.forEach(function (header) {
         values.forEach(function (val) {
           var req = { headers: {} };
@@ -91,6 +96,42 @@ describe('zipline', function () {
           assume(Zipline.accepts(req)).is.not.a('undefined');
         });
       });
+    });
+
+    it('allows override with cookie', function () {
+      accept.headers = { cookie: 'zipline='+ Zipline.major };
+      assume(Zipline.accepts(accept)).equals('gzip');
+
+      accept.headers = { cookie: 'zipline=999' };
+      assume(Zipline.accepts(accept)).equals(undefined);
+    });
+
+    it('can use a custom name for cookie detection', function () {
+      accept.headers = { cookie: 'hairycowass='+ Zipline.major };
+      assume(Zipline.accepts(accept, 'hairycowass')).equals('gzip');
+    });
+
+    it('allows override with query string', function () {
+      accept.headers = {};
+      accept.query = { zipline: Zipline.major };
+      assume(Zipline.accepts(accept)).equals('gzip');
+
+      accept.query = { zipline: 999 };
+      assume(Zipline.accepts(accept)).equals(undefined);
+    });
+
+    it('supports node@0.12 rawHeaders', function () {
+      accept.headers = {};
+      accept.query = {};
+      assume(Zipline.accepts(accept)).equals(undefined);
+
+      accept.rawHeaders = [
+        'user-agent', 'hello world',
+        'custom-header', 'silly value',
+        headers[3], values[5]
+      ];
+
+      assume(Zipline.accepts(accept)).equals('gzip');
     });
   });
 
@@ -103,7 +144,7 @@ describe('zipline', function () {
       port = ports++;
 
       server = require('http').createServer(function (req, res) {
-        zipline.middleware(req, res, function () {
+        zipline.middleware()(req, res, function () {
           res.statusCode = 500;
           res.end('something went wrong');
         });
@@ -122,6 +163,64 @@ describe('zipline', function () {
 
     it('returns a middleware layer', function () {
       assume(zipline.middleware()).is.a('function');
+    });
+
+    it('only triggers when the path matches', function (next) {
+      request('http://localhost:'+ port +'/lol', function (err, res, body) {
+        assume(res.statusCode).equals(500);
+
+        request('http://localhost:'+ port +'/zipline.js', {
+          encoding: null
+        }, function (err, res, body) {
+          assume(body).is.a('buffer');
+          assume(res.statusCode).equals(200);
+          assume(res.headers['content-encoding']).equals('gzip');
+          assume(zipline.buffer).deep.equals(body);
+
+          next();
+        });
+      });
+    });
+
+    it('queues requests until buffer is compiled', function (next) {
+      var order = [];
+
+      zipline.once('initialize', function () {
+        assume(zipline.buffer).is.not.a('null');
+
+        //
+        // Nuke the buffer so the middleware goes in buffer mode.
+        //
+        zipline.buffer = null;
+
+        zipline.once('initialize', function () {
+          order.push('init');
+        });
+
+        request('http://localhost:'+ port +'/zipline.js', {
+          encoding: null
+        }, function (err, res, body) {
+          order.push('res');
+
+          assume(body).is.a('buffer');
+          assume(res.statusCode).equals(200);
+          assume(res.headers['content-encoding']).equals('gzip');
+          assume(zipline.buffer).deep.equals(body);
+          assume(order.join(',')).equals('init,res');
+
+          next();
+        });
+
+        //
+        // After sending out the request we want to initialize the zipline again
+        // so we start compiling a new `buffer` and flush all queued middleware
+        // requests. And yes, this is a super sketchy test, but it works
+        // according to the code coverage reports ;-)
+        //
+        setTimeout(function () {
+          zipline.initialize();
+        }, 500);
+      });
     });
   });
 });

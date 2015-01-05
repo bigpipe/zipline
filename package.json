@@ -36,7 +36,8 @@
     "istanbul": "0.3.x",
     "mocha": "2.1.x",
     "nightmare": "1.6.x",
-    "pre-commit": "0.0.x"
+    "pre-commit": "0.0.x",
+    "request": "2.51.x"
   },
   "dependencies": {
     "demolish": "1.0.x",
