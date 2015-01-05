@@ -15,7 +15,8 @@ zipline we:
 
 1. Implements the detection algorithm as discussed in Yahoo's article.
 2. Detect broken gzip implementations in Internet Explorer 6.
-3. Provide a way to detect gzip support using cookies.
+3. Provide a way to detect gzip support using cookies. As suggested at the
+   [velocity][velocity] conference.
 
 ## Installation
 
@@ -81,3 +82,4 @@ app.use(middleware);
 MIT
 
 [ydn]: http://developer.yahoo.com/blogs/ydn/posts/2010/12/pushing-beyond-gzipping
+[velocity]: http://velocityconf.com/velocity2010/public/schedule/detail/14334
