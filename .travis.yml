@@ -4,7 +4,7 @@ node_js:
   - "0.10"
   - "0.11"
 before_install:
-  - "npm install -g npm@1.4.x"
+  - "npm install -g npm@1.4.x && npm install -g phantomjs"
 script:
   - "npm run test-travis"
 after_script:
