@@ -7,4 +7,4 @@
 
   try{localStroage.setItem(z,m);}
   catch(e){}
-}('{zipline:key}','{zipline:major}'));
+}('{zipline:name}','{zipline:major}'));
