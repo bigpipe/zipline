@@ -1,5 +1,5 @@
 (function(z,m){
-  try{document.cookie=z+'='+m+'; expires=Thu, 18 Dec 2913 12:00:00 UTC';}
+  try{document.cookie=z+'='+m;}
   catch(e){}
 
   try{sessionStorage.setItem(z,m);}
