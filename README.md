@@ -44,57 +44,58 @@ The constructor accepts one optional argument which is an option object that can
 contain the following keys:
 
 - **`pathname`** The pathname on which our middleware should trigger and serve
-  our gzipped payload for forcefully detecting gzip.
+  our gzipped payload for forcefully detecting gzip. Defaults to `/zipline.js`.
 - **`name`** Name of the cookie, property and localStorage/sessionStorage on
-  which we save our gzip information.
+  which we save our gzip information. Defaults to `zipline`.
 
 Now that we know the options we can look at the various of API methods that we
 expose.
 
-### Zipline
+### zipline.middleware
 
-The zipline function is directly exposed as function and can required using:
+Return a middleware layer which automatically parsers the encoding headers using
+the `Zipline.accepts` method and serves our forced gzip payload if the request
+matches the supplied `pathname` option.
 
 ```js
-'use strict';
-
-var zipline = require('zipline');
+connect.use(zipline.middleware());
 ```
 
-The zipline method accepts one argument, which is the headers object you get
-from an incoming HTTP request. Zipline will either return `undefined` when it
-cannot find any suitable encoding values or a string with the encoding value.
-The returned string is either `gzip` or `deflate`.
+So please note that you need to `execute` the middleware function in order to
+return the configured middleware layer.
+
+### zipline.destroy
+
+Clean up the created zipline instance and release all references.
 
 ```js
-http.createServer(function (req, res) {
-  var encoding = zipline(req.headers) || 'nothing';
-  res.end('You accept'+ encoding);
-}).listen(8080);
+zipline.destroy();
 ```
 
-### Middleware
+### Zipline.accepts
 
-The middleware that we expose does 2 things:
+**Please note that this method is exposed on the constructor, not the instance**
 
-1. Automatically parse the incoming request and store the result as `req.zipline`.
-2. Respond to `/zipline.js` requests with a forced gzip encoding of a JavaScript
-   file which will set a `zipline` cookie on the current domain.
+Search and parse the accept-encoding headers. If no `accept-encoding` header is
+found it will search for potential obfuscated headers to force `gzip,deflate`
+for them according to the [YDN][ydn] article. The method accepts 2 arguments:
 
-The middleware can be required using:
+1. **req** Which is an incoming HTTP request so we can extract the `headers`,
+   `rawHeaders` and potentially the `query` object in search for encoding
+   information.
+2. **name** The name of the cookie or query param which contains gzip overriding
+   information. Defaults to `zipline`.
+
+The method will return an array containing the encoding algorithms that can be
+used for the response. If no algorithms are detected we will return an empty
+array.
 
 ```js
-'use strict';
+require('http').createServer(function (req, res) {
+  var encoding = Zipline.accepts(req);
 
-var middleware = require('zipline').middleware;
-
-//
-// Example: Expressjs
-//
-var express = require('express')
-  , app = express();
-
-app.use(middleware);
+  console.log(encoding); // ['gzip', 'deflate']
+});
 ```
 
 ## License
