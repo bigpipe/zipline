@@ -71,20 +71,20 @@ describe('zipline', function () {
     ];
 
     it('detects gzip support', function () {
-      assume(Zipline.accepts(accept)).equals('gzip');
-      assume(Zipline.accepts(decline)).is.a('undefined');
+      assume(Zipline.accepts(accept)).contains('gzip');
+      assume(Zipline.accepts(decline)).is.length(0);
     });
 
     it('ignores IE6 without service pack', function () {
       accept.headers['user-agent'] = 'Mozilla/5.0 (compatible; MSIE 6.0; Windows NT 5.1)';
 
-      assume(Zipline.accepts(accept)).is.a('undefined');
+      assume(Zipline.accepts(accept)).is.length(0);
     });
 
     it('accepts IE6 with a service pack', function () {
       accept.headers['user-agent'] = 'Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)';
 
-      assume(Zipline.accepts(accept)).equals('gzip');
+      assume(Zipline.accepts(accept)).contains('gzip');
     });
 
     it('forces gzip on obfuscated encoding headers', function () {
@@ -93,37 +93,38 @@ describe('zipline', function () {
           var req = { headers: {} };
           req.headers[header] = val;
 
-          assume(Zipline.accepts(req)).is.not.a('undefined');
+          assume(Zipline.accepts(req)).contains('gzip');
+          assume(Zipline.accepts(req)).contains('deflate');
         });
       });
     });
 
     it('allows override with cookie', function () {
       accept.headers = { cookie: 'zipline='+ Zipline.major };
-      assume(Zipline.accepts(accept)).equals('gzip');
+      assume(Zipline.accepts(accept)).contains('gzip');
 
       accept.headers = { cookie: 'zipline=999' };
-      assume(Zipline.accepts(accept)).equals(undefined);
+      assume(Zipline.accepts(accept)).is.length(0);
     });
 
     it('can use a custom name for cookie detection', function () {
       accept.headers = { cookie: 'hairycowass='+ Zipline.major };
-      assume(Zipline.accepts(accept, 'hairycowass')).equals('gzip');
+      assume(Zipline.accepts(accept, 'hairycowass')).contains('gzip');
     });
 
     it('allows override with query string', function () {
       accept.headers = {};
       accept.query = { zipline: Zipline.major };
-      assume(Zipline.accepts(accept)).equals('gzip');
+      assume(Zipline.accepts(accept)).contains('gzip');
 
       accept.query = { zipline: 999 };
-      assume(Zipline.accepts(accept)).equals(undefined);
+      assume(Zipline.accepts(accept)).is.length(0);
     });
 
     it('supports node@0.12 rawHeaders', function () {
       accept.headers = {};
       accept.query = {};
-      assume(Zipline.accepts(accept)).equals(undefined);
+      assume(Zipline.accepts(accept)).is.length(0);
 
       accept.rawHeaders = [
         'user-agent', 'hello world',
@@ -131,7 +132,7 @@ describe('zipline', function () {
         headers[3], values[5]
       ];
 
-      assume(Zipline.accepts(accept)).equals('gzip');
+      assume(Zipline.accepts(accept)).contains('gzip');
     });
   });
 

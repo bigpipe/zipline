@@ -95,7 +95,7 @@ Zipline.prototype.destroy = destroy('name, buffer, pathname', {
  *
  * @param {Request} req Incoming HTTP request.
  * @param {String} name Name of the zipline cookie we need to search for.
- * @returns {String|Undefined}
+ * @returns {Array}
  * @api public
  */
 Zipline.accepts = function accepts(req, name) {
@@ -113,14 +113,14 @@ Zipline.accepts = function accepts(req, name) {
   // @see sebduggan.com/blog/ie6-gzip-bug-solved-using-isapirewrite
   //
   if (ua && /msie\s[5|6]/i.test(ua) && !/sv1/i.test(ua)) {
-    return undefined;
+    return [];
   }
 
   //
   // No obfuscation, assume that it's intact and that we can test against it.
   //
   if (headers['accept-encoding']) {
-    return headers['accept-encoding'].split(',')[0];
+    return headers['accept-encoding'].split(',');
   }
 
   //
@@ -131,11 +131,11 @@ Zipline.accepts = function accepts(req, name) {
   //
   if (!raw.length) for (i in headers) {
     if (obfheader.test(i) && obfvalue.test(headers[i])) {
-      return 'gzip';
+      return ['gzip', 'deflate'];
     }
   } else for (i = 0; i < raw.length; i++) {
     if (obfheader.test(raw[i]) && obfvalue.exec(raw[i + 1])) {
-      return 'gzip';
+      return ['gzip'];
     }
 
     //
@@ -153,10 +153,10 @@ Zipline.accepts = function accepts(req, name) {
        headers.cookie && ~headers.cookie.indexOf(line)
     || 'object' === typeof req.query && req.query[name] === Zipline.major
   ) {
-    return 'gzip';
+    return ['gzip'];
   }
 
-  return undefined;
+  return [];
 };
 
 /**
