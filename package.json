@@ -1,6 +1,6 @@
 {
   "name": "zipline",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Check if a given set of headers accepts gzip - Bypassing any possible obfuscation.",
   "main": "index.js",
   "scripts": {
