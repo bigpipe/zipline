@@ -98,6 +98,33 @@ require('http').createServer(function (req, res) {
 });
 ```
 
+### Loading the `/zipline.js`
+
+The `/zipline.js` contains a JavaScript payload which will set a `zipline`
+cookie as well as add `zipline` keys to the `sessionStorage` and `localStorage`.
+There are a couple of ways of loading this. You can check if the `req.zipline`
+property (when using the middleware) and check if the array contains somethings.
+When it's empty you could trigger the following script on the page and load the
+`/zipline.js`:
+
+```js
+(function(d){
+  var iframe = d.body.appendChild(d.createElement('iframe')),
+  doc = iframe.contentWindow.document;
+
+  doc.open().write('<body onload="' +
+  'var d = document;d.getElementsByTagName(\'head\')[0].' +
+  'appendChild(d.createElement(\'script\')).src' +
+  '=\'\/zipline.js\'">');
+
+  doc.close();
+})(document);
+```
+
+The reason why we load it in an iframe is so errors that might be caused because
+the browser doesn't support gzip do not bubble up to the main page. It would
+only be triggered in the iframe.
+
 ## License
 
 MIT
