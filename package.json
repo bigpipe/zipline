@@ -32,12 +32,12 @@
   },
   "homepage": "https://github.com/bigpipe/zipline",
   "devDependencies": {
-    "assume": "0.0.x",
+    "assume": "1.1.x",
     "istanbul": "0.3.x",
     "mocha": "2.1.x",
-    "nightmare": "1.6.x",
-    "pre-commit": "0.0.x",
-    "request": "2.51.x"
+    "nightmare": "1.7.x",
+    "pre-commit": "1.0.x",
+    "request": "2.x.x"
   },
   "dependencies": {
     "demolish": "1.0.x",
