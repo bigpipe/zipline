@@ -1,6 +1,6 @@
 # zipline
 
-[![From bigpipe.io][from]](http://bigpipe.io)[![Version npm][version]](http://browsenpm.org/package/zipline)[![Build Status][build]](https://travis-ci.org/bigpipe/zipline)[![Dependencies][david]](https://david-dm.org/bigpipe/zipline)[![Coverage Status][cover]](https://coveralls.io/r/bigpipe/zipline?branch=master)
+[![Version npm][version]](http://browsenpm.org/package/zipline)[![Build Status][build]](https://travis-ci.org/bigpipe/zipline)[![Dependencies][david]](https://david-dm.org/bigpipe/zipline)[![Coverage Status][cover]](https://coveralls.io/r/bigpipe/zipline?branch=master)
 
 [from]: https://img.shields.io/badge/from-bigpipe.io-9d8dff.svg?style=flat-square
 [version]: http://img.shields.io/npm/v/zipline.svg?style=flat-square
